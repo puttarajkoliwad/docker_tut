@@ -133,3 +133,9 @@ Dockerizing an app:
 	- Eg.: 
 		docker tag hello_docker putta032/docker_tut:hello_docker
 		docker push putta032/docker_tut:hello_docker
+
+---- pulling a docker image ----
+	- syntax: docker pull <image_tag>
+	- Eg: docker pull putta032/docker_tut:hello_docker
+
+	- run this by 'docker run putta032/docker_tut:hello_docker'
