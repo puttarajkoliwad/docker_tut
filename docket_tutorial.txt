@@ -1,0 +1,121 @@
+======Docket Tutorial=======
+
+Notes referenced from: https://www.youtube.com/watch?v=pTFZFxd4hOI, https://www.youtube.com/watch?v=fqMOX6JJhGo
+
+What is Docker?
+-	Docker is 'platform' for building, running and 'shipping' applications. It is a file listing system/environment configurations required for the app to to run smoothly.
+	-	the configurations could be both OS-Dependencies and Library dependencies of the framework/language.
+	-	This way it ensures that if the app is running smoothly on dev env, it would also behave the same way on staging/uat/pre-prod/prod env.
+	-	Docker can set up multiple runtime-environment on a single OS by using isolated(seperated and independent from others) 'CONTAINERS'
+		- A 'Container' is collection of 'spec' files that are dedicated to a particular version of the 'software-dependencies'.
+			-	Eg.: Running multiple application with different Rails/Ruby versions on a single machine. Each server will run independently. A gem version change in one application will not affect other applications. All this is handled by rvm and bundler with the help of gemfile.
+				-	The same way Docker will handle the complete configurations/dependencies for each application on OS level.
+			(Basically everything written above in one term is called as the 'image/snapshot' of the env.)
+	** The Docker only takes care of 'software-dependencies'. Any 'hardware-dependency' mismatch is out of the scope of Docker configurations.
+	
+
+	
+Docker Container v/s VM:
+================================
+A VM needs actual part of hardware resource of the machine all to itself. 
+	-	It is a independent whole new OS
+		- means more memory for OS itself.
+		- also means more maintenance (upgrades, license, etc)
+		- the allocated memory is dedicated and can't be used by any other OS even if the Application is offline. (so dead waste of resources when the application is not running)
+		-	above high needs of resources limit the actual no. of VMs that can be run a single machine(let's say max 10 VMs on an very efficient machine)
+		- needs to boot-up => very slow
+
+A 'Container' on the other hand runs on the existing OS without requiring new OS. Thus it doesn't demand too much of resources. It's lightweight.
+	- can be brought-up/shut-down with ease, and with no extra configuration, no change in behavior. 
+	- Once the 'container' is down that memory is freed up.
+	- thus we can run very high number of 'containers' on a single machine. (like 100-200 without any issues on an efficient machine)
+	- fast, no booting
+
+
+
+Architecture:
+================================
+Docker is a composition of client-server architecture.
+	-	'Docker-Engine' is the server here and it sits on the OS just like any other installed app.
+	-	'Container' is the the 'client' instance here. This is just like any other process running on the OS.
+
+The 'Docker-Engine' query the machine kernel which means the 'Docker-Containers' are OS dependent.
+	- Linux OS: can only run linux containers
+	- Windows OS: can run both linux and Windows containers since the 'windows OS also have linux kernels within them'.
+	- Mac OS: It has different kernel than linux and windows. It doesn't support native continuos applications. So Docker uses a 'lightweight linux VM' to run on Mac OS.
+
+
+
+Installation:
+================================
+01) Ubuntu: sudo snap install docker
+other packages at: https://docs.docker.com/get-docker/
+
+check version:
+	-	sudo docker version.
+	- just 'docker version' may not start docker-server due to permission issues, although it will start docker-client without any issues.
+
+
+Dockerizing an app:
+================================
+---- Writing a 'Dockerfile' ----
+01) Go inside your project directory
+02) Create a dockerfile with name 'Dockerfile' in the root path of your project.
+	-	This name could be anything other than 'Dockerfile', but by convetion it's named 'Dockerfile'. No file extensions here.
+03)	Writing into a 'Dockerfile'
+	3.1) Add a 'base' image using "FROM" keyword. This base image is the initial set-up including OS and the required framework/library/language
+		-	syntax: FROM <base_image_name>:<base_image_tag>
+		-	Eg.: FROM linux:alpine
+					 FROM node:alpine
+					 
+		Here, 'node' is the required library and 'alpine' is the tag_name for a lightweight linux version image. We actually need to give OS info first, but since 'this' 'node' comes installed on the required 'linux', we can directly import 'node'. Along with it comes the 'linux' too.
+
+		-	No need to remember the tag_name or 'image' names ('node:alpine' here). Everything is listed on docker-hub(https://hub.docker.com/). Just go and search there for your required ones.
+
+	3.2) "COPY" the contents of your project_folder to a folder preferably with same name.
+		-	syntax: COPY <source_folder> <target_folder>
+		-	Eg.: COPY . /app
+
+	3.3) Set applicable "WORKDIR" to run the desired commands.
+		-	syntax: WORKDIR <work_directory_path>
+		- Eg.: WORKDIR .
+
+	3.4) Run('RUN') the required commands using 'RUN' keyword. like 'rake db:seed', or 'bundle update'
+		-	syntax: RUN <command>
+		- Eg.: RUN npm install
+
+	3.5) Call('CMD') the final executable command using 'CMD' keyword to start your application.
+		- syntax: CMD <final_command> <arguments>
+		- Eg.: CMD node main.js
+		- <arguments> can be accessed using 'ARG $argument_name' keyword. It is similar to 'ENV' but is non persistent. This will only help build the image, but it wont be a part of the image itself.
+		** Only 'CMD' call will be executed on a docker image, even if you give multple 'CMD' lines. Rest will be ignored. To run multiple commands use 'RUN' keyword.
+
+-	This should be sufficient to set up your new environment.
+
+- Extra keywords:
+	- ENV <VARIABLE_NAME> <variable_value>: to set environment variables.
+	- ARG <PARAMETER_NAME> : to fetch the <parameters> passed while starting a docker process.
+
+---- Bulding an Image ----
+	-	Once the 'Dockerfile' is ready, we can use it build an 'image' of the environment. Again, an 'image' in simple terms is a replica 'of the settings' of the environment. We can use this to replicate muliple instances of our environ using 'containers'
+
+	- syntax: docker build -t <tag_name_for_the_image> <path_to_the_'folder'_of_Dockerfile_to_refer>
+	- Eg.: docker build -t hello_docker .
+
+	This will create the 'image/docker_repo' with name 'hello_docker'
+
+	-	To list the available images:
+	- docker images OR docker image ls
+
+---- Running a Docker image ----
+	-	syntax: docker run <imag/docker_repo_name>
+	- Eg.: docker run hello_docker
+
+---- List running 'Containers' or images ----
+	- command: 'docker ps': list the 'running' docker containers
+	- command: 'docker container ls': this also lists the 'running' docker containers.
+	** '-a' option should be used with above commands to list 'stopped' processes.
+
+---- Commiting a docker image/container -----
+
+	
