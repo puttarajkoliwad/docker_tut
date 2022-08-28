@@ -117,5 +117,19 @@ Dockerizing an app:
 	** '-a' option should be used with above commands to list 'stopped' processes.
 
 ---- Commiting a docker image/container -----
+	- syntax:
+		docker container commit <container_id> <image_name>:<image_tag>
+		docker container commit b5d6b09336a4 docker_tut:hello_docker
 
+---- 'login' to a remote docker from CLI ----
+	Logging into your docker account via CLI allows you to push your local docker images to your remote repo.
+	syntax: sudo docker login -u <username> --password-stdin
+
+---- Pushing a docker image/container ----
+	- syntax:
+		docker tag <local_image/repo_name>:<tag_name> <remote_host>:<tagname_to_be_used_in_remote>
+		docker push <remote_host>:<tagname_to_be_used_in_remote>
 	
+	- Eg.: 
+		docker tag hello_docker putta032/docker_tut:hello_docker
+		docker push putta032/docker_tut:hello_docker
