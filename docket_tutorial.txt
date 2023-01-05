@@ -7,7 +7,7 @@ What is Docker?
 	-	the configurations could be both OS-Dependencies and Library dependencies of the framework/language.
 	-	This way it ensures that if the app is running smoothly on dev env, it would also behave the same way on staging/uat/pre-prod/prod env.
 	-	Docker can set up multiple runtime-environment on a single OS by using isolated(seperated and independent from others) 'CONTAINERS'
-		- A 'Container' is collection of 'spec' files that are dedicated to a particular version of the 'software-dependencies'.
+		- A 'Container' is collection of 'spec' files that are dedicated to a particular version of the 'software-dependencies'. (it is an image in runnig status)
 			-	Eg.: Running multiple application with different Rails/Ruby versions on a single machine. Each server will run independently. A gem version change in one application will not affect other applications. All this is handled by rvm and bundler with the help of gemfile.
 				-	The same way Docker will handle the complete configurations/dependencies for each application on OS level.
 			(Basically everything written above in one term is called as the 'image/snapshot' of the env.)
@@ -88,7 +88,7 @@ Dockerizing an app:
 		- syntax: CMD <final_command> <arguments>
 		- Eg.: CMD node main.js
 		- <arguments> can be accessed using 'ARG $argument_name' keyword. It is similar to 'ENV' but is non persistent. This will only help build the image, but it wont be a part of the image itself.
-		** Only 'CMD' call will be executed on a docker image, even if you give multple 'CMD' lines. Rest will be ignored. To run multiple commands use 'RUN' keyword.
+		** Only one 'CMD' call will be executed on a docker image, even if you give multple 'CMD' lines. Rest will be ignored. To run multiple commands use 'RUN' keyword.
 
 -	This should be sufficient to set up your new environment.
 
@@ -109,7 +109,8 @@ Dockerizing an app:
 
 ---- Running a Docker image ----
 	-	syntax: docker run <imag/docker_repo_name>
-	- Eg.: docker run hello_docker
+	- can also use "docker start <image/name>"
+	- Eg.: docker run hello_docker OR docker start hello_docker
 
 ---- List running 'Containers' or images ----
 	- command: 'docker ps': list the 'running' docker containers
@@ -139,3 +140,70 @@ Dockerizing an app:
 	- Eg: docker pull putta032/docker_tut:hello_docker
 
 	- run this by 'docker run putta032/docker_tut:hello_docker'
+
+
+
+
+================================================================================================================================
+
+DOCKER MASTERCLASS BY SCALER: 05th Jan. 2023 by Akhil Sharma(https://www.linkedin.com/in/akhilsails/)
+01) https://docs.google.com/document/d/11wjjlIFonVouC5OS-6OvrOInNZFwQ5GNndxyMwSrdpo/preview
+02) https://docs.google.com/document/d/17Xuhg_OSCPktLButwrjANnmWhOsuEeIwaRCsD2munkc/preview
+================================================================
+
+
+COMMANDS:
+============
+01) docker info: gives information about docker(running images, containers, etc)
+02) sudo docker service start: starts docker server. Obeserve it is "docker service" and NOT "service docker"
+03) Docker version --format ‘{{json .}}’: gives out a json format of dockerfile configuration.
+04) docker stats: similar to 'top' command in linux
+05) docker search <image_name>: for searching images
+	-- Options: 
+		-- --filter=stars=3: should have min stars rated
+		-- --no-trunc: don't truncate output (description)
+		-- limit 10: List 10 images only
+
+06) Changing state of the machine:
+ a) docker run <image_id/name>
+ b) docker stop <image_id/name>
+ c) docker start <image_id/name>
+ d) docker restart <image_id/name>
+ e) docker pause <image_id/name>: It would only disconnect the container, means the data will still be available unlike docker "stop". Once "stopped" all the state data will be lost since 'sometimes' volumes use impersistent storing mechanism.
+ f) docker unpause <image_id/name>: resumes a paused docker image
+ g) docker exec -it <image_id/name> <executable_command>: allows to execute a command inside a container. Just like ssh-ing into a remote server.
+	- eg.: docker exec -it redis bash
+	-  
+ h) docker attach <image_id/name>: Allows to connect interactively to an image running in "detach" mode
+ i) docker rename old_name new_name
+ j) docker rm <image_id/name>: remove/delete that image
+ k) docker stop $(docker ps -a -q): stops all the containers(gracefully)
+ l) docker rm -f $(sudo docker ps -a -q)
+ m) docker inspect <image_id/name>: Gives all the details about that container
+ n) docker kill -f $(docker ps -a -q): stops all the containers(NON gracefully)
+ o) docker system prune: (CAUTIOUS COMMAND, 'do NOT use it unless you are very sure about removing(cleaning) it'): removes all stopped/unused/dangling/dangling_build_cache
+ p) docker cp:
+		- docker cp . puttaredis:/data : copies everything from current folder to puttaredis container.
+ 
+
+volumes: Storage mechanism for containers
+================================================================
+01) docker create volume <volume_name>
+02) docker volume ls
+03) --mount: attaches the volume to a container
+	- docker volume create new_vol
+	- docker run -d --name=redisvol --mount source=new_vol,target=/app redis readonly
+		- --name= : name of the 'container' of 'redis' image
+		- --mount source:<volume_name>:  takes volume_name to mount at 'target' of 'redis' image here.
+		- readonly: mode of operation allowed on this volume(optional parameter, by default allows write operations)
+	- docker volume rm <volume_name>
+
+
+- used images for this masterclass:
+==========
+docker pull ubuntu:20.04
+docker pull redis
+docker pull mongo
+
+
+docker run -it --name=puttaredis -d redis: runs the image in background(-d: detached shell) also in "interactive mode"(-it), with container name as "puttaredis"
