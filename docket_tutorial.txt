@@ -100,7 +100,10 @@ Dockerizing an app:
 	-	Once the 'Dockerfile' is ready, we can use it build an 'image' of the environment. Again, an 'image' in simple terms is a replica 'of the settings' of the environment. We can use this to replicate muliple instances of our environ using 'containers'
 
 	- syntax: docker build -t <tag_name_for_the_image> <path_to_the_'folder'_of_Dockerfile_to_refer>
-	- Eg.: docker build -t hello_docker .
+	- options: 
+	a) --build-arg <BUILD_ARG_KEY>=<build_arg_val>: To pass custom arguments to the build. These can be accessed using ${BUILD_ARG_KEY} inside the container
+	b) --progress: To set the logger output target. Setting this to `plain` will log the output of RUN commands in the build to the terminal
+	- Eg.: docker build --progress=plain --build-arg ENV_VAR_1=env_var1_val --build-arg ENV_VAR_2=env_var2_val -t hello_docker .
 
 	This will create the 'image/docker_repo' with name 'hello_docker'
 
