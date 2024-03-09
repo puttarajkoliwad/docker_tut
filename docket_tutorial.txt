@@ -103,6 +103,7 @@ Dockerizing an app:
 	- options: 
 	a) --build-arg <BUILD_ARG_KEY>=<build_arg_val>: To pass custom arguments to the build. These can be accessed using ${BUILD_ARG_KEY} inside the container
 	b) --progress: To set the logger output target. Setting this to `plain` will log the output of RUN commands in the build to the terminal
+
 	- Eg.: docker build --progress=plain --build-arg ENV_VAR_1=env_var1_val --build-arg ENV_VAR_2=env_var2_val -t hello_docker .
 
 	This will create the 'image/docker_repo' with name 'hello_docker'
